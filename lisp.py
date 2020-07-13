@@ -7,6 +7,7 @@ class Environment:
             '+': operator.add,
             '-': operator.sub,
             '*': operator.mul,
+            'atom?': (lambda a : type(a) != list),
             # '/': operator.di
         }
 
@@ -42,8 +43,16 @@ environment = Environment()
 
 
 def evaluate(t):
-    if type(t) == int or type(t) == float:
+    print(t)
+    if type(t) == int or type(t) == float or (type(t) == str and t not in environment.keywords):
         return t
+    elif type(t) == str and t in environment.keywords:
+        # variable reference
+        return environment.keywords[t]
+    elif t[0] == 'define':
+        environment.keywords[t[1]] = evaluate(t[2])
+    elif t[0] == 'lambda':
+
     else:
         procedure = environment.keywords[t[0]]
         args = [evaluate(k) for k in t[1:]]
@@ -53,8 +62,15 @@ def evaluate(t):
 
 
 a = '(+ 1 (+ 123 2))'
-p = '(define (name a b) (+ a b )'
+p = '(define name (+ 1 1 ))'
 
-parsed = parse(a)
+parsed = parse(p)
 print(parsed)
 print(evaluate(parsed))
+
+def repl():
+    while True:
+        parsed = parse(input('scheme> '))
+        print(evaluate(parsed))
+
+repl()
